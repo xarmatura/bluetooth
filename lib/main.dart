@@ -5,30 +5,7 @@ import 'package:bluetooth/tiles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
-void main() {
-  runApp(const MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      color: Colors.lightBlue,
-      home: StreamBuilder<BluetoothState>(
-          stream: FlutterBlue.instance.state,
-          initialData: BluetoothState.unknown,
-          builder: (c, snapshot) {
-            final state = snapshot.data;
-            if (state == BluetoothState.on) {
-              return const FindDevicesScreen();
-            }
-            return BluetoothOffScreen(state: state);
-          }),
-    );
-  }
-}
 
 class BluetoothOffScreen extends StatelessWidget {
   const BluetoothOffScreen({Key? key, this.state}) : super(key: key);
@@ -61,6 +38,26 @@ class BluetoothOffScreen extends StatelessWidget {
     );
   }
 }
+class First extends StatelessWidget {
+  const First({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: StreamBuilder<BluetoothState>(
+        stream: FlutterBlue.instance.state,
+        initialData: BluetoothState.unknown,
+        builder: (c, snapshot) {
+          final state = snapshot.data;
+          if (state == BluetoothState.on) {
+            return const FindDevicesScreen();
+          }
+          return BluetoothOffScreen(state: state);
+        }
+      )
+    );
+  }
+}
 
 class FindDevicesScreen extends StatelessWidget {
   const FindDevicesScreen({Key? key}) : super(key: key);
@@ -68,9 +65,6 @@ class FindDevicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Find Devices'),
-      ),
       body: RefreshIndicator(
         onRefresh: () =>
             FlutterBlue.instance.startScan(timeout: const Duration(seconds: 4)),
@@ -292,7 +286,7 @@ class DeviceScreen extends StatelessWidget {
             ),
             StreamBuilder<List<BluetoothService>>(
               stream: device.services,
-              initialData: [],
+              initialData: const [],
               builder: (c, snapshot) {
                 return Column(
                   children: _buildServiceTiles(snapshot.data!),

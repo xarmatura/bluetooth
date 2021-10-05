@@ -19,7 +19,12 @@ dependencies:
     git:
       url: https://github.com/boskokg/flutter_blue/
       ref: 0.11.0
-
+  card_swiper: ^1.0.4
+#  bluetooth_low_energy: ^0.1.0   // seems good but not yet, need more investigate
+#  flutter_bluetooth_basic: any   // only send data and get paired  error
+#  flutter_scan_bluetooth 2.0.2   // just scan
+#  flutter_ble_peripheral         // not good
+#  flutter_reactive_ble           // interesting need more
 dev_dependencies:
   flutter_test:
     sdk: flutter
