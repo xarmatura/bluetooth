@@ -1,38 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:card_swiper/card_swiper.dart';
-import 'blue_screen.dart';
+import 'helpers/utils.dart';
+import 'screens/home_page.dart';
 
 void main() {
-  runApp(const Starter());
+  runApp(const BluetoothApp());
 }
 
-class Starter extends StatelessWidget {
-  const Starter({Key? key}) : super(key: key);
-
-  static const String titleApp = 'Starter';
-  static const List<Widget> widgets = [First(), FindDevicesScreen()];
+class BluetoothApp extends StatelessWidget {
+  const BluetoothApp({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: titleApp,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text(titleApp),
+  Widget build(BuildContext context) => MaterialApp(
+      home: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            title: const Text('Bluetooth Tester'),
+            centerTitle: true,
+            bottom: TabBar(
+              tabs: [
+                Tab(text: Strings.scanner.toUpperCase()),
+                Tab(text: Strings.connected.toUpperCase()),
+                Tab(text: Strings.bonded.toUpperCase()),
+              ],
+            ),
+          ),
+          body: const TabBarView(
+            children: [
+              HomePage(),
+              Icon(Icons.directions_bike),
+              Icon(Icons.directions_bike),
+            ],
+          ),
         ),
-        body: Swiper(
-          itemBuilder: (BuildContext context, int index) {
-            return widgets[index];
-          },
-          loop: false,
-          scrollDirection: Axis.horizontal,
-          pagination: const SwiperPagination(alignment: Alignment.center),
-          indicatorLayout: PageIndicatorLayout.COLOR,
-          controller: SwiperController(),
-          autoplay: false,
-          itemCount: widgets.length,
-        )
       ),
     );
   }
-}

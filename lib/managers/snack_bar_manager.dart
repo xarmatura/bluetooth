@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 /// Convert to abstract manager
 class SnackBarManager {
-  static showSnackBar(String message, GlobalKey<ScaffoldMessengerState> key, Color color) {
+  static showErrorSnackBar(BuildContext context) {
     final snackBar = SnackBar(
-      backgroundColor: color,
-      content: Text(message),
+      backgroundColor: Colors.red,
+      content: Text('123'),
       action: SnackBarAction(
         textColor: Colors.black,
         label: 'Undo',
@@ -14,9 +14,6 @@ class SnackBarManager {
         },
       ),
     );
-    key.currentState?.showSnackBar(snackBar);
-    // Find the ScaffoldMessenger in the widget tree
-    // and use it to show a SnackBar.
-    // ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
