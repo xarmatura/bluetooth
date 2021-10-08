@@ -18,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   final FlutterBlue bluetooth = FlutterBlue.instance;
   final Duration timeout = const Duration(seconds: 4);
   final GlobalKey<ScaffoldMessengerState> key = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,13 +77,9 @@ class _HomePageState extends State<HomePage> {
           children: snapshot.hasData ? snapshot.data!
               .map((result) => ItemDevice(
             result: result,
-            onTap: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) {
-              result.device.connect().whenComplete(() => {
-
-              });
-              return DeviceScreen(device: result.device);
-            })),
+            onTap: () {
+              debugPrint('123 ${result.toString()}');
+            },
           ),
           ).toList() : []
       ),

@@ -150,7 +150,7 @@ class DeviceScreen extends StatelessWidget {
               initialData: const [],
               builder: (c, snapshot) {
                 return Column(
-                  children: _buildServiceTiles(snapshot.data!),
+                  children: _buildServiceTiles(snapshot.data ?? []),
                 );
               },
             ),
