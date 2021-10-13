@@ -1,8 +1,9 @@
 import 'package:bluetooth/widgets/gradient_icon.dart';
 import 'package:bluetooth/helpers/strings.dart';
 import 'package:bluetooth/managers/snack_bar_manager.dart';
-import 'package:bluetooth/tiles/device_item.dart';
+import 'package:bluetooth/items/device_item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:bluetooth/blue_screen.dart';
 
@@ -18,39 +19,50 @@ class _HomePageState extends State<HomePage> {
   final FlutterBlue bluetooth = FlutterBlue.instance;
   final Duration timeout = const Duration(seconds: 4);
   final GlobalKey<ScaffoldMessengerState> key = GlobalKey();
-
+  bool isFabVisible = true;
+  
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: key,
-      body: StreamBuilder<BluetoothState>(
-          stream: bluetooth.state,
-          initialData: BluetoothState.unknown, // save state to pref
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data == BluetoothState.off) {
-              return const Center(
-                  child: GradientIcon(Icons.bluetooth_disabled_outlined, 72,
-                    LinearGradient(
-                        tileMode: TileMode.decal,
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: <Color>[Colors.cyan, Colors.indigo]
-                    ),
-              )); // Need relative snack bar
-            }
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    connectedDevices(),
-                    scannedDevices(),
-                  ],
+    return NotificationListener<UserScrollNotification>(
+      onNotification: (notification) {
+        if (notification.direction == ScrollDirection.forward) {
+          setState(() => isFabVisible = true);
+        } else if (notification.direction == ScrollDirection.reverse) {
+          setState(() => isFabVisible = false);
+        }
+        return true;
+      },
+      child: Scaffold(
+        key: key,
+        body: StreamBuilder<BluetoothState>(
+            stream: bluetooth.state,
+            initialData: BluetoothState.unknown, // TODO save state to pref
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data == BluetoothState.off) {
+                return const Center(
+                    child: GradientIcon(Icons.bluetooth_disabled_outlined, 72,
+                      LinearGradient(
+                          tileMode: TileMode.decal,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: <Color>[Colors.cyan, Colors.indigo]
+                      ),
+                )); // TODO Need relative snack bar
+              }
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      connectedDevices(),
+                      scannedDevices(),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
-      floatingActionButton: scanDevices(),
+              );
+            }),
+        floatingActionButton: isFabVisible ? scanDevices() : null,
+      ),
     );
   }
 

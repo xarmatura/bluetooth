@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:bluetooth/tiles/char_item.dart';
-import 'package:bluetooth/tiles/desc_item.dart';
-import 'package:bluetooth/tiles/service_item.dart';
+import 'package:bluetooth/items/char_item.dart';
+import 'package:bluetooth/items/desc_item.dart';
+import 'package:bluetooth/items/service_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 

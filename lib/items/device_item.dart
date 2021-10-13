@@ -10,7 +10,7 @@ class ItemDevice extends StatelessWidget {
       : super(key: key);
 
   Widget deviceName(BuildContext context) => Text(
-    result.device.name.isEmpty ? Strings.empty : result.device.name.toString(),
+    result.device.name.isEmpty ? Strings.empty : result.device.name.toString(), // TODO Check emptiness
     style: Theme.of(context).textTheme.bodyText1,
   );
 
@@ -39,27 +39,26 @@ class ItemDevice extends StatelessWidget {
     );
   }
 
-  Widget _buildAdvRow(BuildContext context, String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(title, style: Theme.of(context).textTheme.caption),
-          const SizedBox(
-            width: 12.0,
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: Theme.of(context)
-                  .textTheme
-                  .caption
-                  ?.apply(color: Colors.black),
-              softWrap: true,
+  Widget deviceCard(BuildContext context, String title, String? value) {
+    return Card(
+      elevation: 1,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Text(title + ':', style: Theme.of(context).textTheme.bodyText1),
+            Expanded(
+              child: Text(
+                value ?? 'N/A',
+                style: Theme.of(context).textTheme
+                    .bodyText2?.apply(color: Colors.grey), // TODO justify or m8 or remove card
+                softWrap: true,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -102,19 +101,15 @@ class ItemDevice extends StatelessWidget {
           subtitle: deviceIdentificator(context),
           trailing: deviceTrailing(),
           children: <Widget>[
-            _buildAdvRow(
-                context, 'Complete Local Name', result.advertisementData.localName),
-            _buildAdvRow(context, 'Tx Power Level',
-                '${result.advertisementData.txPowerLevel ?? 'N/A'}'),
-            _buildAdvRow(context, 'Manufacturer Data',
+            deviceCard(context,Strings.localName, result.advertisementData.localName),
+            deviceCard(context,Strings.txPowerLvl,result.advertisementData.txPowerLevel.toString()),
+            deviceCard(context,Strings.manufacturerData,
                 getNiceManufacturerData(result.advertisementData.manufacturerData)),
-            _buildAdvRow(
-                context,
-                'Service UUIDs',
+            deviceCard(context,Strings.uuid,
                 (result.advertisementData.serviceUuids.isNotEmpty)
                     ? result.advertisementData.serviceUuids.join(', ').toUpperCase()
                     : 'N/A'),
-            _buildAdvRow(context, 'Service Data',
+            deviceCard(context,Strings.service,
                 getNiceServiceData(result.advertisementData.serviceData)),
           ],
         ),

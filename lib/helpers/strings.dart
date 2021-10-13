@@ -7,4 +7,9 @@ class Strings {
   static const String empty = 'N/A';
   static const String open = 'Open Tab';
   static const String appTitle = 'Application';
+  static const String localName = 'Complete local name';
+  static const String txPowerLvl = 'Tx Power Level';
+  static const String manufacturerData = 'Manufacturer Data';
+  static const String uuid = 'Service UUIDs';
+  static const String service = 'Service Data';
 }
