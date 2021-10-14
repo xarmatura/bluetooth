@@ -4,9 +4,9 @@ import 'package:bluetooth/helpers/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
-class BondedPage extends StatelessWidget {
-  
-  BondedPage({Key? key}) : super(key: key);
+class ConnectedPage extends StatelessWidget {
+
+  ConnectedPage({Key? key}) : super(key: key);
   final FlutterBlue bluetooth = FlutterBlue.instance;
 
   @override
@@ -16,7 +16,7 @@ class BondedPage extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: RefreshIndicator(
           triggerMode: RefreshIndicatorTriggerMode.anywhere,
-          onRefresh: () => bluetooth.bondedDevices
+          onRefresh: () => bluetooth.connectedDevices
               .timeout(const Duration(seconds: Constants.timeout)),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -39,7 +39,7 @@ class BondedPage extends StatelessWidget {
       builder: (c, snapshot) {
         if (snapshot.data == BluetoothDeviceState.connected) {
           return ElevatedButton(
-            child: Text(Strings.connect.toUpperCase()),
+            child: Text(Strings.open.toUpperCase()),
             style: ElevatedButton.styleFrom(
               primary: Colors.black,
               onPrimary: Colors.white,
@@ -47,15 +47,15 @@ class BondedPage extends StatelessWidget {
             onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) =>
                     DetailsPage(device: device))),
-          );
-        }
+            );
+          }
         return ElevatedButton(
           child: Text(Strings.connect.toUpperCase()),
           style: ElevatedButton.styleFrom(
             primary: Colors.black,
             onPrimary: Colors.white,
           ),
-          onPressed: null
+          onPressed: null,
         );
       },
     ),
@@ -63,7 +63,7 @@ class BondedPage extends StatelessWidget {
 
   FutureBuilder<List<BluetoothDevice>> fetchDevices(BuildContext context) {
     return FutureBuilder(
-      future: bluetooth.bondedDevices,
+      future: bluetooth.connectedDevices,
       initialData: const [],
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

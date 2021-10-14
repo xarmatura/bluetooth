@@ -1,12 +1,13 @@
+import 'package:bluetooth/helpers/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
-class DescriptorTile extends StatelessWidget {
+class DescItem extends StatelessWidget {
   final BluetoothDescriptor descriptor;
   final VoidCallback? onReadPressed;
   final VoidCallback? onWritePressed;
 
-  const DescriptorTile(
+  const DescItem(
       {Key? key,
         required this.descriptor,
         this.onReadPressed,
@@ -35,23 +36,36 @@ class DescriptorTile extends StatelessWidget {
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.file_download,
-              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
-            ),
-            onPressed: onReadPressed,
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.file_upload,
-              color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
-            ),
-            onPressed: onWritePressed,
-          )
-        ],
+        children: buttons(),
       ),
     );
+  }
+
+  List<Widget> buttons() {
+    List<Widget> buttons = <Widget>[];
+
+    buttons.add(
+      ElevatedButton(
+        onPressed: onReadPressed,
+        child: Text(Strings.read.toUpperCase()),
+        style: ElevatedButton.styleFrom(
+          primary: Colors.black,
+          onPrimary: Colors.white,
+        ),
+      ),
+    );
+    buttons.add(const SizedBox(width: 2));
+    buttons.add(
+      ElevatedButton(
+        onPressed: onWritePressed,
+        child: Text(Strings.write.toUpperCase()),
+        style: ElevatedButton.styleFrom(
+          primary: Colors.black,
+          onPrimary: Colors.white,
+        ),
+      ),
+    );
+    buttons.add(const SizedBox(width: 2));
+    return buttons;
   }
 }
