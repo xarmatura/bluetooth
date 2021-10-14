@@ -22,6 +22,7 @@ dependencies:
   card_swiper: ^1.0.4
 #  permission_handler: ^8.2.2
   another_flushbar: ^1.10.24
+  synchronized: ^3.0.0
 #  flutter_bluetooth_serial 0.4.0 // only android
 #  bluetooth_low_energy: ^0.1.0   // seems good but not yet, need more investigate
 #  flutter_bluetooth_basic: any   // only send data and get paired  error

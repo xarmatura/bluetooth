@@ -1,22 +1,23 @@
+import 'package:bluetooth/helpers/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
 import 'desc_item.dart';
 
-class CharacteristicTile extends StatelessWidget {
+class CharItem extends StatelessWidget {
   final BluetoothCharacteristic characteristic;
-  final List<DescriptorTile> descriptorTiles;
+  final List<DescItem> descriptorTiles;
   final VoidCallback? onReadPressed;
   final VoidCallback? onWritePressed;
   final VoidCallback? onNotificationPressed;
 
-  const CharacteristicTile(
+  const CharItem(
       {Key? key,
-        required this.characteristic,
-        required this.descriptorTiles,
-        this.onReadPressed,
-        this.onWritePressed,
-        this.onNotificationPressed})
+      required this.characteristic,
+      required this.descriptorTiles,
+      this.onReadPressed,
+      this.onWritePressed,
+      this.onNotificationPressed})
       : super(key: key);
 
   @override
@@ -34,7 +35,7 @@ class CharacteristicTile extends StatelessWidget {
               children: <Widget>[
                 const Text('Characteristic'),
                 Text(
-                    '0x${characteristic..toString().toUpperCase().substring(4, 8)}',
+                    '0x${characteristic.uuid.toString().toUpperCase().substring(4, 8)}',
                     style: Theme.of(context).textTheme.bodyText1?.copyWith(
                         color: Theme.of(context).textTheme.caption?.color))
               ],
@@ -44,32 +45,58 @@ class CharacteristicTile extends StatelessWidget {
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              IconButton(
-                icon: Icon(
-                  Icons.file_download,
-                  color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
-                ),
-                onPressed: onReadPressed,
-              ),
-              IconButton(
-                icon: Icon(Icons.file_upload,
-                    color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
-                onPressed: onWritePressed,
-              ),
-              IconButton(
-                icon: Icon(
-                    characteristic.isNotifying
-                        ? Icons.sync_disabled
-                        : Icons.sync,
-                    color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
-                onPressed: onNotificationPressed,
-              )
-            ],
+            children: buttons(characteristic),
           ),
           children: descriptorTiles,
         );
       },
     );
+  }
+
+  List<Widget> buttons(BluetoothCharacteristic characteristic) {
+    List<Widget> buttons = <Widget>[];
+
+    if (characteristic.properties.read) {
+      buttons.add(
+        ElevatedButton(
+          onPressed: onReadPressed,
+          child: Text(Strings.read.toUpperCase()),
+          style: ElevatedButton.styleFrom(
+            primary: Colors.black,
+            onPrimary: Colors.white,
+          ),
+        ),
+      );
+      buttons.add(const SizedBox(width: 2));
+    }
+    if (characteristic.properties.write) {
+      buttons.add(
+        ElevatedButton(
+          onPressed: onWritePressed,
+          child: Text(Strings.write.toUpperCase()),
+          style: ElevatedButton.styleFrom(
+            primary: Colors.black,
+            onPrimary: Colors.white,
+          ),
+        ),
+      );
+      buttons.add(const SizedBox(width: 2));
+    }
+    if (characteristic.properties.notify) {
+      buttons.add(
+        ElevatedButton(
+          onPressed: onNotificationPressed,
+          child: Icon(
+            characteristic.isNotifying ? Icons.sync_disabled : Icons.sync,
+          ),
+          style: ElevatedButton.styleFrom(
+            primary: Colors.black,
+            onPrimary: Colors.white,
+          ),
+        ),
+      );
+      buttons.add(const SizedBox(width: 2));
+    }
+    return buttons;
   }
 }

@@ -2,11 +2,11 @@ import 'package:bluetooth/helpers/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
-class ItemDevice extends StatelessWidget {
+class DeviceItem extends StatelessWidget {
 
   final ScanResult result;
   final VoidCallback? onTap;
-  const ItemDevice({Key? key, required this.result, this.onTap})
+  const DeviceItem({Key? key, required this.result, this.onTap})
       : super(key: key);
 
   Widget deviceName(BuildContext context) => Text(

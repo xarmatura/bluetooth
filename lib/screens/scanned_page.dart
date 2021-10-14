@@ -1,11 +1,11 @@
+import 'package:bluetooth/helpers/constants.dart';
 import 'package:bluetooth/widgets/gradient_icon.dart';
 import 'package:bluetooth/helpers/strings.dart';
-import 'package:bluetooth/managers/snack_bar_manager.dart';
 import 'package:bluetooth/items/device_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-import 'package:bluetooth/blue_screen.dart';
+import 'package:bluetooth/screens/details_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -15,12 +15,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   final FlutterBlue bluetooth = FlutterBlue.instance;
-  final Duration timeout = const Duration(seconds: 4);
+  final Duration timeout = const Duration(seconds: Constants.timeout);
   final GlobalKey<ScaffoldMessengerState> key = GlobalKey();
   bool isFabVisible = true;
-  
+
   @override
   Widget build(BuildContext context) {
     return NotificationListener<UserScrollNotification>(
@@ -40,22 +39,26 @@ class _HomePageState extends State<HomePage> {
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data == BluetoothState.off) {
                 return const Center(
-                    child: GradientIcon(Icons.bluetooth_disabled_outlined, 72,
-                      LinearGradient(
-                          tileMode: TileMode.decal,
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: <Color>[Colors.cyan, Colors.indigo]
-                      ),
+                    child: GradientIcon(
+                  Icons.bluetooth_disabled_outlined,
+                  72,
+                  LinearGradient(
+                      tileMode: TileMode.decal,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: <Color>[Colors.cyan, Colors.indigo]),
                 )); // TODO Need relative snack bar
               }
               return Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: SingleChildScrollView(
-                  child: Column(
+                child: RefreshIndicator(
+                  onRefresh: () => bluetooth.startScan(
+                      timeout: const Duration(seconds: Constants.timeout)) ,
+                  child: ListView(
                     children: <Widget>[
-                      connectedDevices(),
-                      scannedDevices(),
+                      Column(
+                        children: <Widget>[scannedDevices()],
+                      ),
                     ],
                   ),
                 ),
@@ -66,11 +69,27 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  LinearGradient themedGradient() => const LinearGradient(
+      tileMode: TileMode.decal,
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: <Color>[Colors.cyan, Colors.indigo]);
+
+  FloatingActionButton fab(
+          {IconData? icon,
+          required Color background,
+          required Function() function}) =>
+      FloatingActionButton(
+        child: icon == null ? Text(Strings.scan.toUpperCase()) : Icon(icon),
+        backgroundColor: background,
+        onPressed: () => function,
+      );
+
   StreamBuilder<bool> scanDevices() {
     return StreamBuilder<bool>(
       stream: bluetooth.isScanning,
       initialData: false,
-      builder: (c, snapshot) {
+      builder: (context, snapshot) {
         if (snapshot.data!) {
           return FloatingActionButton(
             elevation: 0,
@@ -81,13 +100,10 @@ class _HomePageState extends State<HomePage> {
         } else {
           return FloatingActionButton(
               backgroundColor: Colors.black,
-              child: Text('SCAN'), // need handle
-              onPressed: () => bluetooth
-                  .startScan(timeout: timeout)
-                  .whenComplete(
-                      () => SnackBarManager.showErrorSnackBar(context))
-                  .onError((error, stackTrace) =>
-                      SnackBarManager.showErrorSnackBar(context)));
+              child: Text(Strings.scan.toUpperCase()), // need handle
+              onPressed: () => bluetooth.startScan(
+                  timeout: const Duration(seconds: Constants.timeout))
+          );
         }
       },
     );
@@ -97,51 +113,22 @@ class _HomePageState extends State<HomePage> {
     return StreamBuilder<List<ScanResult>>(
       stream: bluetooth.scanResults,
       initialData: const [],
-      builder: (c, snapshot) => Column(
-          children: snapshot.hasData
-              ? snapshot.data!
-                  .map(
-                    (result) => ItemDevice(
-                      result: result,
-                      onTap: () {
-                        debugPrint('123 ${result.toString()}');
-                      },
-                    ),
-                  )
-                  .toList()
-              : []),
-    );
-  }
-
-  StreamBuilder<List<BluetoothDevice>> connectedDevices() {
-    return StreamBuilder<List<BluetoothDevice>>(
-      stream: Stream.periodic(const Duration(seconds: 2))
-          .asyncMap((_) => bluetooth.connectedDevices),
-      initialData: const [],
-      builder: (c, snapshot) => Column(
-        children: snapshot.data!
-            .map((d) => ListTile(
-                  title: Text(d.name),
-                  subtitle: Text(d.id.toString()),
-                  trailing: StreamBuilder<BluetoothDeviceState>(
-                    stream: d.state,
-                    initialData: BluetoothDeviceState.disconnected,
-                    builder: (c, snapshot) {
-                      if (snapshot.data == BluetoothDeviceState.connected) {
-                        return ElevatedButton(
-                          child: Text(Strings.open.toUpperCase()),
-                          onPressed: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      DeviceScreen(device: d))),
-                        );
-                      }
-                      return Text(snapshot.data.toString());
+      builder: (c, snapshot) {
+        List<ScanResult> list = snapshot.data ?? [];
+        return Column(
+            children: list.map((result) => DeviceItem(
+                result: result,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      result.device.connect();
+                      return DetailsPage(device: result.device);
                     },
                   ),
-                ))
-            .toList(),
-      ),
+                )
+            )).toList()
+        );
+      },
     );
   }
 }

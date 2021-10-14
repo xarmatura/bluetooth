@@ -3,11 +3,11 @@ import 'package:flutter_blue/flutter_blue.dart';
 
 import 'char_item.dart';
 
-class ServiceTile extends StatelessWidget {
+class ServiceItem extends StatelessWidget {
   final BluetoothService service;
-  final List<CharacteristicTile> characteristicTiles;
+  final List<CharItem> characteristicTiles;
 
-  const ServiceTile(
+  const ServiceItem(
       {Key? key, required this.service, required this.characteristicTiles})
       : super(key: key);
 

@@ -3,6 +3,7 @@ class Strings {
   static const String scanned = 'Scanned';
   static const String bonded = 'Bonded';
   static const String connected = 'Connected';
+  static const String disconnected = 'Disconnected';
   static const String connect = 'Connect';
   static const String empty = 'N/A';
   static const String open = 'Open Tab';
@@ -12,4 +13,9 @@ class Strings {
   static const String manufacturerData = 'Manufacturer Data';
   static const String uuid = 'Service UUIDs';
   static const String service = 'Service Data';
+  static const String scan = 'Scan';
+  static const String read = 'Read';
+  static const String write = 'Write';
+  static const String switchOn = 'Switch On';
+  static const String switchOff = 'Switch off';
 }

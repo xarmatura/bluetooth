@@ -1,3 +1,5 @@
+import 'package:bluetooth/screens/bonded_page.dart';
+import 'package:bluetooth/screens/connected_page.dart';
 import 'package:flutter/material.dart';
 import 'helpers/strings.dart';
 import 'screens/scanned_page.dart';
@@ -45,11 +47,11 @@ class BluetoothApp extends StatelessWidget {
               ],
             ),
           ),
-          body: const TabBarView(
+          body: TabBarView(
             children: [
-              HomePage(),
-              Icon(Icons.directions_bike),
-              Icon(Icons.directions_bike),
+              const HomePage(),
+              ConnectedPage(),
+              BondedPage(),
             ],
           ),
         ),
