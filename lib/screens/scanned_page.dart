@@ -7,14 +7,14 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:bluetooth/screens/details_page.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class ScannedPage extends StatefulWidget {
+  const ScannedPage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<ScannedPage> createState() => _ScannedPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _ScannedPageState extends State<ScannedPage> {
   final FlutterBlue bluetooth = FlutterBlue.instance;
   final Duration timeout = const Duration(seconds: Constants.timeout);
   final GlobalKey<ScaffoldMessengerState> key = GlobalKey();

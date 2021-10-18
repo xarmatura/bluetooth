@@ -49,7 +49,7 @@ class BluetoothApp extends StatelessWidget {
           ),
           body: TabBarView(
             children: [
-              const HomePage(),
+              const ScannedPage(),
               ConnectedPage(),
               BondedPage(),
             ],

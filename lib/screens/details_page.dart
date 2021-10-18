@@ -115,71 +115,88 @@ class DetailsPage extends StatelessWidget {
                   break;
               }
               return TextButton(
-                  onPressed: onPressed,
-                  child: Text(
-                    text,
-                    style: Theme.of(context)
-                        .primaryTextTheme
-                        .button
-                        ?.copyWith(color: Colors.white),
-                  ));
+                onPressed: onPressed,
+                child: Text(text, style: Theme.of(context).primaryTextTheme
+                      .button?.copyWith(color: Colors.white)
+                ),
+              );
             },
           )
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            StreamBuilder<BluetoothDeviceState>(
-              stream: device.state,
-              initialData: BluetoothDeviceState.connecting,
-              builder: (c, snapshot) => Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: <Color>[
-                        Colors.cyan,
-                        Colors.indigo
-                      ]),
-                ),
-                child: ListTile(
-                  leading: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: (snapshot.data == BluetoothDeviceState.connected)
-                        ? const Icon(Icons.bluetooth_connected)
-                        : const Icon(Icons.bluetooth_disabled),
-                  ),
-                  title: Text(device.name),
-                  subtitle: Text(
-                      'Device is ${snapshot.data.toString().split('.')[1]}.'),
-                  trailing: StreamBuilder<bool>(
-                    stream: device.isDiscoveringServices,
-                    initialData: false,
-                    builder: (c, snapshot) => Column(
-                      children: <Widget>[
-                        IconButton(
-                          icon: const Icon(Icons.sync_alt, color: Colors.white,),
-                          onPressed: () async => await device.discoverServices(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            StreamBuilder<List<BluetoothService>>(
-              stream: device.services,
-              initialData: const [],
-              builder: (c, snapshot) {
-                return Column(
-                  children: services(context, snapshot.data ?? []),
-                );
-              },
-            ),
-          ],
-        ),
+      body: StreamBuilder<List<BluetoothService>>(
+        stream: device.services,
+        initialData: const [],
+        builder: (c, snapshot) {
+          return Column(
+            children: services(context, snapshot.data ?? []),
+          );
+        }
       ),
     );
   }
+
+
+  Widget connectBLE() => FutureBuilder(
+    future: device.connect(),
+    builder: (context, snapshot) {
+      switch(snapshot.connectionState) {
+        case ConnectionState.none:
+        case ConnectionState.waiting:
+          return Container();
+        case ConnectionState.active:
+        case ConnectionState.done:
+          return discoverBLE();
+      }
+    },
+  );
+
+  Widget discoverBLE() => FutureBuilder<List<BluetoothService>>(
+    future: device.discoverServices(),
+    builder: (context, snapshot) {
+      switch(snapshot.connectionState) {
+        case ConnectionState.none:
+        case ConnectionState.waiting:
+          return Container();
+        case ConnectionState.active:
+        case ConnectionState.done: {
+          List<BluetoothService> services = snapshot.data ?? [];
+          return merge(batteryBLE(services), versionSoftware(services));
+        }
+      }
+    },
+  );
+
+
+  BluetoothCharacteristic batteryBLE(List<BluetoothService> services) {
+    var batteryService = services.map((e) => e.characteristics.last);
+    return batteryService.first;
+  }
+
+  BluetoothCharacteristic versionSoftware(List<BluetoothService> services) {
+    var versionService = services.map((e) => e.characteristics.last);
+    return versionService.first;
+  }
+
+  Widget readValue(BluetoothCharacteristic characteristic) => FutureBuilder<List<int>>(
+    future: characteristic.read(),
+    builder: (context, snapshot) {
+      switch (snapshot.connectionState) {
+        case ConnectionState.none:
+        case ConnectionState.waiting:
+          return Container();
+        case ConnectionState.active:
+        case ConnectionState.done: {
+          return Text(snapshot.data.toString());
+        }
+      }
+    }
+  );
+
+  Widget merge(BluetoothCharacteristic battery, BluetoothCharacteristic version) => Column(
+    children: <Widget>[
+      readValue(battery),
+      readValue(version),
+    ],
+  );
 }
