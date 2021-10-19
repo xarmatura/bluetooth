@@ -5,6 +5,7 @@ import 'package:bluetooth/helpers/strings.dart';
 import 'package:bluetooth/items/char_item.dart';
 import 'package:bluetooth/items/desc_item.dart';
 import 'package:bluetooth/items/service_item.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:synchronized/synchronized.dart';
@@ -124,15 +125,7 @@ class DetailsPage extends StatelessWidget {
           )
         ],
       ),
-      body: StreamBuilder<List<BluetoothService>>(
-        stream: device.services,
-        initialData: const [],
-        builder: (c, snapshot) {
-          return Column(
-            children: services(context, snapshot.data ?? []),
-          );
-        }
-      ),
+      body: connectBLE(),
     );
   }
 
@@ -145,6 +138,7 @@ class DetailsPage extends StatelessWidget {
         case ConnectionState.waiting:
           return Container();
         case ConnectionState.active:
+          return Container();
         case ConnectionState.done:
           return discoverBLE();
       }
@@ -159,23 +153,30 @@ class DetailsPage extends StatelessWidget {
         case ConnectionState.waiting:
           return Container();
         case ConnectionState.active:
+          return Container();
         case ConnectionState.done: {
-          List<BluetoothService> services = snapshot.data ?? [];
-          return merge(batteryBLE(services), versionSoftware(services));
+          List<BluetoothService> services1 = snapshot.data ?? [];
+          // return Column(children: services(context, services1));
+          return merge(batteryBLE(services1), versionSoftware(services1));
         }
       }
     },
   );
 
+  BluetoothCharacteristic stateBLE(List<BluetoothService> services) {
+    var batteryService = services.map((e) => e.characteristics.firstWhere((element) => element.uuid == Guid('ea0b0100-aafc-68ab-e611-9f4db6933ea7')));
+    debugPrint(batteryService.toString());
+    return batteryService.last;
+  }
 
   BluetoothCharacteristic batteryBLE(List<BluetoothService> services) {
     var batteryService = services.map((e) => e.characteristics.last);
-    return batteryService.first;
+    return batteryService.last;
   }
 
   BluetoothCharacteristic versionSoftware(List<BluetoothService> services) {
     var versionService = services.map((e) => e.characteristics.last);
-    return versionService.first;
+    return versionService.last;
   }
 
   Widget readValue(BluetoothCharacteristic characteristic) => FutureBuilder<List<int>>(
@@ -186,17 +187,28 @@ class DetailsPage extends StatelessWidget {
         case ConnectionState.waiting:
           return Container();
         case ConnectionState.active:
+          return Container();
         case ConnectionState.done: {
-          return Text(snapshot.data.toString());
+          return Center(child: Text(snapshot.data.toString(), style: const TextStyle(fontSize: 65)));
         }
       }
     }
   );
 
-  Widget merge(BluetoothCharacteristic battery, BluetoothCharacteristic version) => Column(
+  Widget merge(BluetoothCharacteristic battery, BluetoothCharacteristic version, {BluetoothCharacteristic? state}) => Column(
     children: <Widget>[
+      Icon(Icons.battery_full, size: 72),
       readValue(battery),
-      readValue(version),
+      StreamBuilder<List<int>>(
+        stream: battery.value,
+        initialData: battery.lastValue,
+        builder: (context, snapshot) {
+          return CupertinoSwitch(onChanged: (bool value) {  }, value: false);
+        }
+      ),
+      Center(child: Text('3.8.7', style: TextStyle(fontSize: 65))),
+      // readValue(version),
+      // readValue(state!),
     ],
   );
 }
